@@ -24,15 +24,21 @@ function getUserDataPromise(userId) {
     console.log("processing get data 2...");
     return new Promise((success, failed) => {
         if (!userId) failed("Sorry, no user id. Cannot Acces");
-        if (userId > users.length) failed("Sorry, user id is greater than data. Cannot Access")
+        // if (userId > users.length) failed("Sorry, user id is greater than data. Cannot Access")
+        let found = false
         if (userId) {
             for (let i = 0; i < users.length; i++) {
                 if (users[i].id === userId) {
+                    found = true;
                     setTimeout(() => {
                         success(users[i])
                     }, 2000)
                     return;
                 }
+            }
+
+            if (!found) {
+                failed("user not found!")
             }
         }
     })
@@ -64,7 +70,7 @@ getUserDataCallback(1, (user) => {
 });
 
 // Test Case Promise
-getUserDataPromise(2)
+getUserDataPromise(4)
     .then((user) => {
         console.log('Promise Result:', user);
         // Output: Promise Result: { id: 2, username: 'jane_smith' }
