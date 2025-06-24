@@ -1,6 +1,8 @@
 const http = require('http'); // http untuk membuat server
 const fs = require('fs').promises; // untuk operasi file asyng/await
 const path = require('path'); // untuk kontruksi path yang aman
+const { formatBytes } = require('./monitor.js')
+const os = require('os')
 
 //buat http server dasar
 const server = http.createServer(async (req, res) => {
@@ -36,10 +38,21 @@ server.on('request', async (req, res) => {
     if (req.url === "/") {
         res.writeHead(200, { 'Content-Type': 'text/plain' });
         res.end('Home Page')
+    } else if (req.url === "/health") {
+        //menambahkan endpoint monitoring di server
+        //handle response health
+        const memory = {
+            total: formatBytes(os.totalmem()),
+            used: formatBytes(os.totalmem() - os.freemem()),
+            free: formatBytes(os.freemem())
+        }
+        res.writeHead(200, { 'Content-Type': 'application/json' })
+        res.end(JSON.stringify(memory))
     } else {
         res.writeHead(404);
         res.end('Page Not Found');
     }
+
 })
 //manual menambahkan handler, gunakan ini kalau ingin modular/multi-handler
 

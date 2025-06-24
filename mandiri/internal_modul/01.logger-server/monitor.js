@@ -1,4 +1,6 @@
 const os = require('os');
+const axios = require('axios')
+
 let isMonitoring = false;
 
 //formatting utilities
@@ -63,3 +65,17 @@ try {
 } catch (error) {
     console.error('Monitoring failed:', error)
 }
+
+async function checkServerHealth() {
+    try {
+        const response = await axios.get('http://localhost:3000/health');
+        console.log('Server Health:', response.data)
+    } catch (error) {
+        console.error('Server unreachable')
+    }
+}
+
+// Tambahkan ke interval
+setInterval(checkServerHealth, 15000);
+
+module.exports = { formatBytes }
