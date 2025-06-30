@@ -30,6 +30,58 @@ class HospitalView {
     static logoutError(err) {
         console.log(err)
     }
+
+    static addPatientSuccess(objArrPatient) {
+        console.log(`Berhasil menambahkan pasien dengan nama ${objArrPatient[0].nama}`)
+    }
+
+    static addPatientDuplicate(objArrPatient) {
+        console.log(`ID telah diisi dengan nama ${objArrPatient.nama}`)
+    }
+
+    static addPatientBeforeLogin(objArrPatient) {
+        console.log(`Silahkan Login Dahulu`)
+    }
+
+    static addPatientNotDoctor(objArrPatient) {
+        console.log(`Bukan Akun Dokter`)
+    }
+
+    static addPatientError(err) {
+        console.log(`gagal`)
+    }
+
+    static updatePatientSuccess(objArrPatient) {
+        console.log(`Berhasil memperbarui data pasien dengan nama ${objArrPatient.nama}`)
+    }
+
+    static updatePatientError() {
+        console.log("gagal")
+    }
+
+    static deletePatientSuccess(objArrPatient) {
+        console.log(`Berhasil menghapus data pasien`)
+    }
+
+    static deletePatientError() {
+        console.log("gagal")
+    }
+
+    static showSuccess(type, parsed) {
+        console.log(`data dari ${type}: \n${JSON.stringify(parsed, null, 2)}`)
+    }
+
+    static showBeforeLogin() {
+        console.log("silahkan login dahulu")
+    }
+
+    static showNotAdmin() {
+        console.log("Bukan akun admin")
+    }
+
+    static showError() {
+        console.log("gagal")
+    }
 }
 
 module.exports = HospitalView;

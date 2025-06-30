@@ -14,20 +14,34 @@ class Employee {
                 console.log(err);
             } else {
                 let obj = new Employee(name, password, role);
+
+                //semua data employee termasuk yang baru ditambahkan disimpan ke file employee.json
                 let newData = data;
                 newData.push(obj);
-                let objArr = [];
 
+                // data khusus untuk ditampilkan di view
+                let objArr = [];
                 objArr.push(obj);
                 objArr.push(newData.length);
 
-                fs.writeFile("./employee.json", JSON.stringify(newData), (err) => {
+                //writeFile akan menimpa seluruh isi file, bukan menambah di akhir.
+                //Karena itu kamu harus selalu baca file dulu (fs.readFile) → push data baru → lalu writeFile semua ulang.
+                //Format yang ditulis adalah teks JSON, bukan array JS.
+
+                fs.writeFile("./employee.json", JSON.stringify(newData, null, 2), (err) => {
                     if (err) {
                         console.log(err);
                     } else {
-                        cb(err, objArr)
+                        cb(err, objArr) //objArr dikirim ke view agar ditampilkan ke user
                     }
                 })
+
+                /*
+                JSON.stringify(newData, null, 2)
+                param1: mengubah data ke json
+                param2: menulis semua properti karena null, jika ingin filter gunakan func
+                param3: dengan format rapi pakai indentasi 2
+                */
             }
         })
     }
@@ -38,13 +52,13 @@ class Employee {
                 console.log(err)
             } else {
                 //cek apakah sudah ada yang sedang login
-                const alreadyLogin = data.find(emp => emp.login === true);
+                const alreadyLogin = data.find(employee => employee.login === true);
                 if (alreadyLogin) {
                     return cb(null, { status: "already-login", user: alreadyLogin })
                 }
 
                 //cari user yang sesuai
-                const found = data.find(emp => emp.username === name && emp.password === password);
+                const found = data.find(employee => employee.username === name && employee.password === password);
                 if (!found) {
                     return cb(null, { status: "invalid-credentials" })
                 }
@@ -67,7 +81,7 @@ class Employee {
                 console.log(err);
             } else {
                 //cari user yang sedang login
-                const loggedInUser = data.find(emp => emp.login === true);
+                const loggedInUser = data.find(employee => employee.login === true);
 
                 if (!loggedInUser) {
                     return cb(null, { status: "no-user-logged-in" });
@@ -83,6 +97,39 @@ class Employee {
                         cb(null, { status: "success", user: loggedInUser });
                     }
                 })
+            }
+        })
+    }
+
+    static show(type, cb) {
+        this.findAll((err, data) => {
+            if (err) {
+                console.log(err);
+            } else {
+                const loggedInUser = data.find(admin => admin.login === true);
+
+                if (!loggedInUser) return cb(null, { status: "please-login" });
+
+                if (loggedInUser.position !== "admin") return cb(null, { status: "not-a-admin" });
+
+                if (type === "employee" || type === "patient") {
+                    fs.readFile(`./${type}.json`, "utf-8", (err, data) => {
+                        if (err) {
+                            if (err.code === "ENOENT") {
+                                cb(null, []) //file belum ada
+                            } else {
+                                cb(err)
+                            }
+                        } else {
+                            try {
+                                const parsed = data.trim() === "" ? [] : JSON.parse(data);
+                                cb(null, parsed)
+                            } catch (e) {
+                                cb(e)
+                            }
+                        }
+                    })
+                }
             }
         })
     }
