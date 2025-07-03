@@ -55,6 +55,10 @@ class HospitalView {
         console.log(`Berhasil memperbarui data pasien dengan nama ${objArrPatient.nama}`)
     }
 
+    static updateNoData() {
+        console.log("Tidak ada data patient")
+    }
+
     static updatePatientError() {
         console.log("gagal")
     }
@@ -63,12 +67,24 @@ class HospitalView {
         console.log(`Berhasil menghapus data pasien`)
     }
 
+    static deleteNoData() {
+        console.log("Tidak ada data patient")
+    }
+
+    static deleteNotFound(id) {
+        console.log(`Data id ${id} tidak ditemukan`)
+    }
+
     static deletePatientError() {
         console.log("gagal")
     }
 
-    static showSuccess(type, parsed) {
-        console.log(`data dari ${type}: \n${JSON.stringify(parsed, null, 2)}`)
+    static showEmployeeSucces(parsed) {
+        console.log(`data dari Employee: \n${JSON.stringify(parsed, null, 2)}`)
+    }
+
+    static showPatientSuccess(parsed) {
+        console.log(`data dari Patient: \n${JSON.stringify(parsed, null, 2)}`)
     }
 
     static showBeforeLogin() {
@@ -79,8 +95,24 @@ class HospitalView {
         console.log("Bukan akun admin")
     }
 
+    static showWrongType() {
+        console.log("Salah memasukkan type")
+    }
+
     static showError() {
         console.log("gagal")
+    }
+
+    static findPatientSuccess(data) {
+        console.log(`data patient: ${JSON.stringify(data, null, 2)}`)
+    }
+
+    static findPatientNotFound(data) {
+        console.log(`data patient tidak ditemukan`)
+    }
+
+    static findPatientError(error) {
+        console.log(`gagal: ${error}`)
     }
 }
 

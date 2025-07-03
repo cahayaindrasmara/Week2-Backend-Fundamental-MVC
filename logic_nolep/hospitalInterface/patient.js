@@ -55,48 +55,92 @@ class Patient {
     }
 
     static updatePatient(id, nama, penyakit1, penyakit2, cb) {
+        Employee.findAll((err, employeeData) => {
+            if (err) {
+                console.log(err)
+            } else {
+                const loggedInUser = employeeData.find(employee => employee.login === true);
+                // console.log(loggedInUser)
+                if (!loggedInUser) return cb(null, { status: "please-login" });
+                if (loggedInUser.position !== "dokter") return cb(null, { status: "not-a-doctor" })
+
+                this.findAll((err, data) => {
+                    if (err) {
+                        console.log(err);
+                    } else {
+                        let found = data.find(patient => patient.id === id)
+
+                        if (!found) return cb(null, { status: "no-data" });
+                        found.nama = nama;
+                        found.penyakit1 = penyakit1;
+                        found.penyakit2 = penyakit2;
+
+                        fs.writeFile("./patient.json", JSON.stringify(data, null, 2), (err) => {
+                            if (err) {
+                                console.log(err);
+                            } else {
+                                cb(err, found)
+                            }
+                        })
+                    }
+                })
+            }
+        })
+
+    }
+
+    static deletePatient(id, nama, penyakit1, penyakit2, cb) {
+        Employee.findAll((err, employeeData) => {
+            if (err) {
+                console.log(err);
+            } else {
+                const loggedInUser = employeeData.find(employee => employee.login === true);
+                // console.log(loggedInUser)
+                if (!loggedInUser) return cb(null, { status: "please-login" });
+                if (loggedInUser.position !== "dokter") return cb(null, { status: "not-a-doctor" })
+
+                this.findAll((err, data) => {
+                    if (err) {
+                        console.log(err)
+                    } else {
+                        if (data.length === 0) return cb(null, { status: "no-data" });
+
+                        let found = data.find(patient => patient.id === id);
+                        console.log(found)
+
+                        if (!found) return cb(null, { status: "not-found", id: id });
+
+                        const filteredData = data.filter(patient => patient.id !== found.id);
+                        // console.log(filteredData)
+
+                        fs.writeFile("./patient.json", JSON.stringify(filteredData, null, 2), (err) => {
+                            if (err) {
+                                console.log(err)
+                            } else {
+                                cb(null, filteredData)
+                            }
+                        })
+                    }
+                })
+            }
+        })
+
+    }
+
+    static findPatient(name, id, cb) {
         this.findAll((err, data) => {
             if (err) {
                 console.log(err);
             } else {
-                let found = data.find(patient => patient.id === id)
-                found.nama = nama;
-                found.penyakit1 = penyakit1;
-                found.penyakit2 = penyakit2;
+                let found = data.find(patient => patient.id === id || patient.name === name);
+                // console.log("found:", found)
 
-                fs.writeFile("./patient.json", JSON.stringify(data, null, 2), (err) => {
-                    if (err) {
-                        console.log(err);
-                    } else {
-                        cb(err, found)
-                    }
-                })
+                if (!found) return cb(null, { status: "not-found" });
+
+                return cb(null, { data: found })
             }
         })
     }
-
-    static deletePatient(id, nama, penyakit1, penyakit2, cb) {
-        this.findAll((err, data) => {
-            if (err) {
-                console.log(err)
-            } else {
-                const filteredData = data.filter(patient => patient.id !== id);
-                console.log(filteredData)
-
-                fs.writeFile("./patient.json", JSON.stringify(filteredData, null, 2), (err) => {
-                    if (err) {
-                        console.log(err)
-                    } else {
-                        cb(null, filteredData)
-                    }
-                })
-            }
-        })
-    }
-
-    // static show(role) {
-    //     this
-    // }
 
     static findAll(cb) {
         fs.readFile("./patient.json", "utf8", (err, data) => {

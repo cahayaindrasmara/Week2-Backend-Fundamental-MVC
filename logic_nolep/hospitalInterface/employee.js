@@ -58,7 +58,7 @@ class Employee {
                 }
 
                 //cari user yang sesuai
-                const found = data.find(employee => employee.username === name && employee.password === password);
+                const found = data.find(employee => name === employee.username && password === employee.password);
                 if (!found) {
                     return cb(null, { status: "invalid-credentials" })
                 }
@@ -106,30 +106,45 @@ class Employee {
             if (err) {
                 console.log(err);
             } else {
+                if (!type || type !== "employee" && type !== "patient") return cb(null, { status: "wrong-type" })
                 const loggedInUser = data.find(admin => admin.login === true);
 
                 if (!loggedInUser) return cb(null, { status: "please-login" });
 
-                if (loggedInUser.position !== "admin") return cb(null, { status: "not-a-admin" });
+                if (loggedInUser.position === "admin") {
+                    return cb(null, { status: "showAdmin", dataEmployee: data })
+                }
 
-                if (type === "employee" || type === "patient") {
-                    fs.readFile(`./${type}.json`, "utf-8", (err, data) => {
+                if (loggedInUser.position === "dokter") {
+                    const Patient = require('./patient');
+                    Patient.findAll((err, data) => {
                         if (err) {
-                            if (err.code === "ENOENT") {
-                                cb(null, []) //file belum ada
-                            } else {
-                                cb(err)
-                            }
+                            console.log(err)
                         } else {
-                            try {
-                                const parsed = data.trim() === "" ? [] : JSON.parse(data);
-                                cb(null, parsed)
-                            } catch (e) {
-                                cb(e)
-                            }
+                            return cb(null, { status: "showDokter", dataPatient: data })
                         }
                     })
                 }
+                // if (loggedInUser.position !== "admin") return cb(null, { status: "not-a-admin" });
+
+                // if (type === "employee" || type === "patient") {
+                //     fs.readFile(`./${type}.json`, "utf-8", (err, data) => {
+                //         if (err) {
+                //             if (err.code === "ENOENT") {
+                //                 cb(null, []) //file belum ada
+                //             } else {
+                //                 cb(err)
+                //             }
+                //         } else {
+                //             try {
+                //                 const parsed = data.trim() === "" ? [] : JSON.parse(data);
+                //                 cb(null, parsed)
+                //             } catch (e) {
+                //                 cb(e)
+                //             }
+                //         }
+                //     })
+                // }
             }
         })
     }

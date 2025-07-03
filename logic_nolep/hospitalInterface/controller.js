@@ -24,7 +24,7 @@ class HospitalController {
                         HospitalView.alreadyLogin(result.user);
                         break;
                     case "invalid-credentials":
-                        HospitalController.invalidLogin();
+                        HospitalView.invalidLogin();
                         break;
                     case "success":
                         HospitalView.loginSuccess(result.user);
@@ -71,7 +71,15 @@ class HospitalController {
             if (err) {
                 HospitalView.updatePatientError();
             } else {
-                HospitalView.updatePatientSuccess(result);
+                if (result.status === "please-login") {
+                    HospitalView.addPatientBeforeLogin();
+                } else if (result.status === "not-a-doctor") {
+                    HospitalView.addPatientNotDoctor();
+                } else if (result.status === "no-data") {
+                    HospitalView.updateNoData();
+                } else {
+                    HospitalView.updatePatientSuccess(result);
+                }
             }
         })
     }
@@ -81,7 +89,17 @@ class HospitalController {
             if (err) {
                 HospitalView.deletePatientError();
             } else {
-                HospitalView.deletePatientSuccess(result);
+                if (result.status === "please-login") {
+                    HospitalView.addPatientBeforeLogin();
+                } else if (result.status === "not-a-doctor") {
+                    HospitalView.addPatientNotDoctor();
+                } else if (result.status === "no-data") {
+                    HospitalView.deleteNoData();
+                } else if (result.status === "not-found") {
+                    HospitalView.deleteNotFound(result.id);
+                } else {
+                    HospitalView.deletePatientSuccess(result);
+                }
             }
         })
     }
@@ -95,8 +113,26 @@ class HospitalController {
                     HospitalView.showBeforeLogin();
                 } else if (result.status === "not-a-admin") {
                     HospitalView.showNotAdmin();
+                } else if (result.status === "wrong-type") {
+                    HospitalView.showWrongType();
+                } else if (result.status === "showAdmin") {
+                    HospitalView.showEmployeeSucces(result.dataEmployee);
+                } else if (result.status === "showDokter") {
+                    HospitalView.showPatientSuccess(result.dataPatient);
+                }
+            }
+        })
+    }
+
+    static findPatientBy(name, id) {
+        Patient.findPatient(name, id, (err, result) => {
+            if (err) {
+                HospitalView.findPatientError(err)
+            } else {
+                if (result.status === "not-found") {
+                    HospitalView.findPatientNotFound()
                 } else {
-                    HospitalView.showSuccess(type, result)
+                    HospitalView.findPatientSuccess(result.data)
                 }
             }
         })
